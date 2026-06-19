@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   triton:
-    container_name: triton
+    container_name: triton-resnet152
     image: nvcr.io/nvidia/tritonserver:24.10-py3
     ports:
       - 8000:8000 # HTTP API
