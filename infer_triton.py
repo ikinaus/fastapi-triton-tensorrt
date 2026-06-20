@@ -1,6 +1,5 @@
 import os
 from io import BytesIO
-from pyexpat import model
 
 import numpy as np
 import tritonclient.grpc.aio as grpcclient
