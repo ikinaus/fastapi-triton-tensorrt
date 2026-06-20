@@ -22,10 +22,27 @@ class InferenceModule:
 
         return img.crop((left, top, right, bottom))
 
+    @staticmethod
+    def resize_preserve_aspect(
+        img: Image.Image, short_side_target: int = 256
+    ) -> Image.Image:
+        w, h = img.size
+
+        if w < h:
+            # Ширина меньше высоты -> делаем ширину 256, а высоту пропорционально увеличиваем
+            new_w = short_side_target
+            new_h = int(h * (short_side_target / w))
+        else:
+            # Высота меньше или равна ширине -> делаем высоту 256, а ширину пропорционально увеличиваем
+            new_h = short_side_target
+            new_w = int(w * (short_side_target / h))
+
+        return img.resize((new_w, new_h), Image.Resampling.BILINEAR)
+
     def preprocess_image_pil(self, img: bytes) -> np.ndarray:
         pil_img = Image.open(BytesIO(img)).convert("RGB")
 
-        resized_img = pil_img.resize((256, 256), Image.Resampling.BILINEAR)
+        resized_img = self.resize_preserve_aspect(pil_img, 256)
         cropped_img = self.center_crop(resized_img, 224, 224)
 
         np_img = np.array(cropped_img).astype(np.float32)  # [224, 224, 3]
