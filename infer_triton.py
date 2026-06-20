@@ -29,11 +29,9 @@ class InferenceModule:
         w, h = img.size
 
         if w < h:
-            # Ширина меньше высоты -> делаем ширину 256, а высоту пропорционально увеличиваем
             new_w = short_side_target
             new_h = int(h * (short_side_target / w))
         else:
-            # Высота меньше или равна ширине -> делаем высоту 256, а ширину пропорционально увеличиваем
             new_h = short_side_target
             new_w = int(w * (short_side_target / h))
 
