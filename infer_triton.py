@@ -1,5 +1,6 @@
 import os
 from io import BytesIO
+from pyexpat import model
 
 import numpy as np
 import tritonclient.grpc.aio as grpcclient
@@ -11,6 +12,7 @@ class InferenceModule:
     def __init__(self) -> None:
         self.url = os.environ.get("TRITON_SERVER_URL", "127.0.0.1:8001")
         self.triton_client = grpcclient.InferenceServerClient(url=self.url)
+        self.metadata_cache = {}
 
     @staticmethod
     def center_crop(img: Image.Image, width: int, height: int) -> Image.Image:
@@ -24,7 +26,8 @@ class InferenceModule:
 
     @staticmethod
     def resize_preserve_aspect(
-        img: Image.Image, short_side_target: int = 256
+        img: Image.Image,
+        short_side_target: int = 256,
     ) -> Image.Image:
         w, h = img.size
 
@@ -55,12 +58,18 @@ class InferenceModule:
         return batched_img
 
     async def infer_image(
-        self, img: bytes, model_name: str = "classifier_onnx"
+        self,
+        img: bytes,
+        model_name: str = "classifier_onnx",
     ) -> dict:
 
-        model_meta = await self.triton_client.get_model_metadata(model_name)
+        if model_name not in self.metadata_cache:
+            model_meta = await self.triton_client.get_model_metadata(model_name)
+            assert model_meta is not None, f"Metadata for model '{model_name}' is None"
+            self.metadata_cache[model_name] = model_meta
+        else:
+            model_meta = self.metadata_cache[model_name]
 
-        assert model_meta is not None, f"Metadata for model '{model_name}' is None"
         shape = model_meta.inputs[0].shape
         channels, height, width = shape[1:]
         dtype = model_meta.inputs[0].datatype
