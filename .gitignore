@@ -3,3 +3,5 @@ __pycache__
 **.plan
 **.onnx
 **.data
+
+temp.py
