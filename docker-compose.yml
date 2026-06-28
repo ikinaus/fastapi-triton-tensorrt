@@ -1,6 +1,7 @@
 version: "3.8"
 
 services:
+  # Triton Inference Server
   triton:
     container_name: triton-resnet152
     image: nvcr.io/nvidia/tritonserver:24.10-py3
@@ -20,6 +21,7 @@ services:
               count: all
               capabilities: [gpu]
 
+  # TensorRT Conventer
   trtexec_container:
     container_name: trtexec_container_triton-resnet152
     image: nvcr.io/nvidia/tensorrt:24.10-py3
@@ -33,3 +35,34 @@ services:
             - capabilities: [gpu]
               count: all
               driver: nvidia
+
+  # Prometheus (Metrics)
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: always
+
+  # Grafana (Metrics Visualisation)
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    user: 1000:1000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_storage:/var/lib/grafana
+    restart: always
+
+volumes:
+  grafana_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./grafana_data

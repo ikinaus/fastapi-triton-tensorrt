@@ -4,4 +4,7 @@ __pycache__
 **.onnx
 **.data
 
+grafana_data/*
+!grafana_data/.gitkeep
+
 temp.py
