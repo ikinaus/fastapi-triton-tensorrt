@@ -28,7 +28,7 @@ async def predict(
         class_name = class_names[class_id]
 
         return {
-            "class_id": class_name,
+            "class_id": class_id,
             "class_name": class_name,
             "probability": probability,
         }
