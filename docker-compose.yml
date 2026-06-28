@@ -21,6 +21,20 @@ services:
               count: all
               capabilities: [gpu]
 
+  # FastAPI server
+  fastapi-app:
+    container_name: fastapi-app-resnet152
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    environment:
+      - TRITON_SERVER_URL=triton:8001
+    depends_on:
+      - triton
+    restart: always
+
   # TensorRT Conventer
   trtexec_container:
     container_name: trtexec_container_triton-resnet152

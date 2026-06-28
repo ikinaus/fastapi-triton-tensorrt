@@ -10,8 +10,14 @@ from tritonclient.utils import triton_to_np_dtype
 class InferenceModule:
     def __init__(self) -> None:
         self.url = os.environ.get("TRITON_SERVER_URL", "127.0.0.1:8001")
-        self.triton_client = grpcclient.InferenceServerClient(url=self.url)
         self.metadata_cache = {}
+        self._triton_client = None
+
+    @property
+    def triton_client(self):
+        if self._triton_client is None:
+            self._triton_client = grpcclient.InferenceServerClient(url=self.url)
+        return self._triton_client
 
     @staticmethod
     def center_crop(img: Image.Image, width: int, height: int) -> Image.Image:
