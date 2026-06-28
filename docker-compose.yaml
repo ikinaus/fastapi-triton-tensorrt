@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   triton:
@@ -11,11 +11,25 @@ services:
     restart: always
     volumes:
       - ./triton/models:/models
-    command: [ 'tritonserver', '--model-store=/models' ]
+    command: ["tritonserver", "--model-store=/models"]
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [ gpu ]
+              capabilities: [gpu]
+
+  trtexec_container:
+    container_name: trtexec_container_triton-resnet152
+    image: nvcr.io/nvidia/tensorrt:24.10-py3
+    volumes:
+      - ./trtexec_workspace:/workspace
+    command: ["tail", "-f", "/dev/null"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              count: all
+              driver: nvidia
