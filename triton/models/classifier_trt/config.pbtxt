@@ -1,6 +1,6 @@
 name: "classifier_trt"
 platform: "tensorrt_plan"
-max_batch_size: 1
+max_batch_size: 16
 
 input [
   {
@@ -16,3 +16,8 @@ output [
     dims: [ 1000 ]
   }
 ]
+
+dynamic_batching {
+    preferred_batch_size: 8
+    max_queue_delay_microseconds: 10000
+}
